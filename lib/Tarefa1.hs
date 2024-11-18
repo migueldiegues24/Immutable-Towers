@@ -36,9 +36,9 @@ possuiPortais _ = True
 -- b)
 -- Verifica se os portais estão sobre terra
 portaisSobreTerra :: Jogo -> Bool
-portaisSobreTerra jogo = all (posicaoTerra mapa) (map posicaoPortal (portaisJogo jogo))
+portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJogo jogo))
     where
-        mapa = mapaJogo jogo
+        mapaJ = mapaJogo jogo
 
 -- Função auxiliar que verifica se uma certa posição é Terra
 posicaoTerra :: Mapa -> Posicao -> Bool
@@ -85,7 +85,7 @@ inimigosSobreTerra mapa inimigos = all (verificaInimigoSobreTerra mapa) inimigos
   where
     -- Função auxiliar que verifica se o inimigo está sobre terra
     verificaInimigoSobreTerra :: Mapa -> Inimigo -> Bool
-    verificaInimigoSobreTerra mapa inimigo = posicoesAoRedorSaoTerra mapa (posicaoInimigo inimigo)
+    verificaInimigoSobreTerra m inimigo = posicoesAoRedorSaoTerra m (posicaoInimigo inimigo)
 
 
 -- Função auxiliar que verifica se os blocos ao redor são Terra
@@ -101,7 +101,8 @@ posicoesAoRedorSaoTerra mapa (x,y)
 -- Função auxiliar que verifica se a posicao é entre dois ou quatro blocos, ou apenas num
 
 temVirgula5 :: Float -> Bool
-temVirgula5 x = (x - fromIntegral (round x)) == 0.5
+temVirgula5 x = (x - fromIntegral (round x :: Int)) == 0.5
+
 
 -- c)
 -- Verifica se os inimigos não estão sobrepostos a Torres
