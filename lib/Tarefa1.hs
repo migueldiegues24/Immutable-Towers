@@ -13,9 +13,7 @@ import LI12425
 
 -- Função que verifica se as 4 Validações são válidas, em caso afirmativo o jogo é válido
 validaJogo :: Jogo -> Bool
-validaJogo jogo =
-    let portais = portaisJogo jogo
-    in possuiPortais portais -- Temporário, depois mudar para função validaPortais
+validaJogo jogo = validaBase jogo
 
 
 
@@ -40,19 +38,27 @@ portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJog
     where
         mapaJ = mapaJogo jogo
 
--- Função auxiliar que verifica se uma certa posição é Terra
-posicaoTerra :: Mapa -> Posicao -> Bool
-posicaoTerra mapa (x,y)
-    | (mapa !! floor y) !! floor x == Terra = True
-    | otherwise = False
-
 
 -- c)
 -- Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
 
+-- verificaCaminhoDeTerra :: Mapa -> Portal -> Base -> Bool -- busca em largura bfs ? busca em profundidade ? dfs ?
+
+
+
+
+
+
 
 -- d)
 -- Verifica se os portais não se sobrepõe a Torres ou à Base
+
+nenhumPortalSobrepoe :: [Portal] -> [Torre] -> Base -> Bool
+nenhumPortalSobrepoe [] _ _ = True
+nenhumPortalSobrepoe (h:t) torres base = if portalNaoSobrepoe h torres base then nenhumPortalSobrepoe t torres base else False
+ 
+-- Verifica se um portal não se sobrepõe a Torres ou à Base
+
 portalNaoSobrepoe :: Portal -> [Torre] -> Base -> Bool
 portalNaoSobrepoe portal torres base =
     let posPortal = posicaoPortal portal
@@ -74,6 +80,19 @@ portalNaoSobrepoe portal torres base =
 
 -- a)
 -- Verifica se Todos os inimigos por lançar têm a posição do respetivo portal, nível de vida positivo, e lista de projéteis ativos vazia
+
+verificaInimigosPorLancar :: [Inimigo] -> Portal -> Bool
+verificaInimigosPorLancar inimigos portal =
+    let posPortal = posicaoPortal portal
+    in all (verificaInimigo posPortal) inimigos
+  where
+    -- Verifica se um inimigo satisfaz as condições
+    verificaInimigo :: Posicao -> Inimigo -> Bool
+    verificaInimigo posPortal inimigo =
+        posicaoInimigo inimigo == posPortal &&  -- Coincide com o portal
+        vidaInimigo inimigo > 0 &&             -- Vida positiva
+        null (projeteisInimigo inimigo)        -- Sem projéteis ativos
+
 
 
 
@@ -114,6 +133,13 @@ velocidadeDoInimigoNãoNegativa inimigos =
 -- Verifica se a lista de projéteis ativas, não contêm mais do que um projétil do mesmo tipo
 -- Nem pode conter simultaneamente, projéteis do tipo Fogo e Resina, nem Fogo e Gelo
 
+
+
+
+
+
+
+
 -- 3 (Torres)
 -- Função que verifica se todas as alíneas forem válidas, esta também o é
 
@@ -126,13 +152,6 @@ velocidadeDoInimigoNãoNegativa inimigos =
 torresSobreRelva :: Mapa -> [Torre] -> Bool
 torresSobreRelva _ [] = True
 torresSobreRelva mapa (t:ts) = if posicaoRelva mapa (posicaoTorre t) then torresSobreRelva mapa ts else False
-
--- Função auxiliar para verificar se uma certa posição é Relva
-
-posicaoRelva :: Mapa -> Posicao -> Bool
-posicaoRelva mapa (x,y)
-    | (mapa !! floor y) !! floor x == Relva = True
-    | otherwise = False
 
 
 -- b)
@@ -155,6 +174,8 @@ verificaRajadaTorres torres =
 
 
 
+-- Função para verificar se o ciclo da torre é finito e maior que 0
+
 
 
 -- e)
@@ -170,7 +191,16 @@ verificaTorresSobrepostas (t:ts) =
 -- 4 (Base)
 -- Função que verifica se todas as alíneas forem válidas, esta também o é
 
--- Implementar validaBase
+validaBase :: Jogo -> Bool
+validaBase jogo =
+    let base = baseJogo jogo
+        mapa = mapaJogo jogo
+        torres = torresJogo jogo
+        portais = portaisJogo jogo
+    in verificaBase mapa (posicaoBase base) &&
+       verificaCreditosBase base &&
+       baseNaoSobreposta base torres portais
+
 
 
 -- a)
@@ -189,4 +219,31 @@ verificaCreditosBase base = creditosBase base >= 0
 -- c)
 -- Verifica se a base não está sobreposta a uma torre ou a um portal
 
+baseNaoSobreposta :: Base -> [Torre] -> [Portal] -> Bool
+baseNaoSobreposta base torres portais =
+    let posBase = posicaoBase base
+        baseNaoSobreTorres = not (any (\t -> posicaoTorre t == posBase) torres)
+        baseNaoSobrePortais = not (any (\p -> posicaoPortal p == posBase) portais)
+    in baseNaoSobreTorres && baseNaoSobrePortais
 
+-- Funções Auxiliares 
+
+-- Função auxiliar que verifica se uma certa posição é Terra
+posicaoTerra :: Mapa -> Posicao -> Bool
+posicaoTerra mapa (x,y)
+    | (mapa !! floor y) !! floor x == Terra = True
+    | otherwise = False
+
+
+-- Função auxiliar para verificar se uma certa posição é Relva
+
+posicaoRelva :: Mapa -> Posicao -> Bool
+posicaoRelva mapa (x,y)
+    | (mapa !! floor y) !! floor x == Relva = True
+    | otherwise = False
+
+
+-- Função auxiliar para igualar a posição ao seu indice
+
+ajustaPosicao :: Posicao -> (Int, Int) -- Ainda a ver, caso se tenha que alterar para (Float, Float)
+ajustaPosicao (x, y) = (floor x, floor y)
