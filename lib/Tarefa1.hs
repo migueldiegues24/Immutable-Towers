@@ -41,7 +41,7 @@ portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJog
         mapaJ = mapaJogo jogo
 
 -- Função auxiliar que verifica se uma certa posição é Terra
-posicaoTerra :: Mapa -> Posicao -> Bool -- Função a ver !!
+posicaoTerra :: Mapa -> Posicao -> Bool
 posicaoTerra mapa (x,y)
     | (mapa !! floor y) !! floor x == Terra = True
     | otherwise = False
@@ -87,10 +87,6 @@ inimigosSobreTerra mapa inimigos = all (verificaInimigoSobreTerra mapa) inimigos
     verificaInimigoSobreTerra :: Mapa -> Inimigo -> Bool
     verificaInimigoSobreTerra m inimigo = posicaoTerra m (posicaoInimigo inimigo)
 
--- Função auxiliar que verifica se a posicao é entre dois ou quatro blocos, ou apenas num
-
-temVirgula5 :: Float -> Bool
-temVirgula5 x = (x - fromIntegral (round x :: Int)) == 0.5
 
 
 -- c)
