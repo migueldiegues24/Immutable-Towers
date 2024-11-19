@@ -41,9 +41,9 @@ portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJog
         mapaJ = mapaJogo jogo
 
 -- Função auxiliar que verifica se uma certa posição é Terra
-posicaoTerra :: Mapa -> Posicao -> Bool
+posicaoTerra :: Mapa -> Posicao -> Bool -- Função a ver !!
 posicaoTerra mapa (x,y)
-    | (mapa !! (round y)) !! (round x) == Terra = True
+    | (mapa !! floor y) !! floor x == Terra = True
     | otherwise = False
 
 
@@ -85,18 +85,7 @@ inimigosSobreTerra mapa inimigos = all (verificaInimigoSobreTerra mapa) inimigos
   where
     -- Função auxiliar que verifica se o inimigo está sobre terra
     verificaInimigoSobreTerra :: Mapa -> Inimigo -> Bool
-    verificaInimigoSobreTerra m inimigo = posicoesAoRedorSaoTerra m (posicaoInimigo inimigo)
-
-
--- Função auxiliar que verifica se os blocos ao redor são Terra
--- Se ele tiver num bloco (x.5,y) significa que o bloco (x-0.5,y) e o bloco (x+0.5,y) têm que ser terra, o mesmo funciona para y
-
-posicoesAoRedorSaoTerra :: Mapa -> Posicao -> Bool
-posicoesAoRedorSaoTerra mapa (x,y)
-    | temVirgula5 x && temVirgula5 y = if posicaoTerra mapa (x-0.5,y-0.5) && posicaoTerra mapa (x+0.5,y+0.5) then True else False
-    | temVirgula5 x = if posicaoTerra mapa (x-0.5,y) && posicaoTerra mapa (x+0.5,y) then True else False
-    | temVirgula5 y = if posicaoTerra mapa (x,y-0.5) && posicaoTerra mapa (x,y + 0.5) then True else False
-    | otherwise = if posicaoTerra mapa (x,y) == True then True else False
+    verificaInimigoSobreTerra m inimigo = posicaoTerra m (posicaoInimigo inimigo)
 
 -- Função auxiliar que verifica se a posicao é entre dois ou quatro blocos, ou apenas num
 
@@ -128,3 +117,80 @@ velocidadeDoInimigoNãoNegativa inimigos =
 -- e)
 -- Verifica se a lista de projéteis ativas, não contêm mais do que um projétil do mesmo tipo
 -- Nem pode conter simultaneamente, projéteis do tipo Fogo e Resina, nem Fogo e Gelo
+
+-- 3 (Torres)
+-- Função que verifica se todas as alíneas forem válidas, esta também o é
+
+-- Implementar função validaTorres
+
+
+-- a)
+-- Verifica se as Torres estão posicionadas na relva
+
+torresSobreRelva :: Mapa -> [Torre] -> Bool
+torresSobreRelva _ [] = True
+torresSobreRelva mapa (t:ts) = if posicaoRelva mapa (posicaoTorre t) then torresSobreRelva mapa ts else False
+
+-- Função auxiliar para verificar se uma certa posição é Relva
+
+posicaoRelva :: Mapa -> Posicao -> Bool
+posicaoRelva mapa (x,y)
+    | (mapa !! floor y) !! floor x == Relva = True
+    | otherwise = False
+
+
+-- b)
+-- Verifica se o alcance das torres é um valor positivo
+
+verificaAlcanceTorres :: [Torre] -> Bool
+verificaAlcanceTorres torres =
+    all (\torre -> alcanceTorre torre > 0) torres
+
+
+-- c)
+-- Verifica se a rajada é superior a 0
+
+verificaRajadaTorres :: [Torre] -> Bool
+verificaRajadaTorres torres =
+    all (\torre -> rajadaTorre torre > 0) torres
+
+-- d)
+-- Verifica se o ciclo das torres é finito e superior a 0
+
+
+
+
+
+-- e)
+-- Verifica se torres não estão sobrepostas
+
+verificaTorresSobrepostas :: [Torre] -> Bool
+verificaTorresSobrepostas [] = True
+verificaTorresSobrepostas (t:ts) =
+    -- Verifica se a primeira torre da lista não tem posição igual a mais nenhuma, depois itera pelas próximas
+    all (\torre -> posicaoTorre t /= posicaoTorre torre) ts && verificaTorresSobrepostas ts
+
+
+-- 4 (Base)
+-- Função que verifica se todas as alíneas forem válidas, esta também o é
+
+-- Implementar validaBase
+
+
+-- a)
+-- Verifica se a base está sobre Terra
+
+verificaBase :: Mapa -> Posicao -> Bool
+verificaBase mapa (x,y) = posicaoTerra mapa (x,y)
+
+
+-- b)
+-- Verifica se a base não tem crédito negativo
+
+verificaCreditosBase :: Base -> Bool
+verificaCreditosBase base = creditosBase base >= 0
+
+-- c)
+-- Verifica se a base não está sobreposta a uma torre ou a um portal
+
+
