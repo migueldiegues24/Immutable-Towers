@@ -13,8 +13,10 @@ import LI12425
 
 -- Função que verifica se as 4 Validações são válidas, em caso afirmativo o jogo é válido
 validaJogo :: Jogo -> Bool
-validaJogo jogo = validaBase jogo
-
+validaJogo jogo =
+    validaInimigos jogo &&
+    validaTorres jogo &&
+    validaBase jogo
 
 
 -- 1 (Portais)
@@ -33,19 +35,14 @@ possuiPortais _ = True
 
 -- b)
 -- Verifica se os portais estão sobre terra
-portaisSobreTerra :: Jogo -> Bool
-portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJogo jogo))
-    where
-        mapaJ = mapaJogo jogo
+portaisSobreTerra :: Mapa -> [Portal] -> Bool
+portaisSobreTerra mapa portais = 
+    all (\portal -> posicaoTerra mapa (posicaoPortal portal)) portais
 
 
 -- c)
 -- Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
 
-
-
-
--- verificaCaminhoDeTerra :: Mapa -> Portal -> Base -> Bool -- busca em largura bfs ? busca em profundidade ? dfs ?
 
 
 
@@ -56,7 +53,7 @@ portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJog
 nenhumPortalSobrepoe :: [Portal] -> [Torre] -> Base -> Bool
 nenhumPortalSobrepoe [] _ _ = True
 nenhumPortalSobrepoe (h:t) torres base = if portalNaoSobrepoe h torres base then nenhumPortalSobrepoe t torres base else False
- 
+
 -- Verifica se um portal não se sobrepõe a Torres ou à Base
 
 portalNaoSobrepoe :: Portal -> [Torre] -> Base -> Bool
@@ -69,7 +66,11 @@ portalNaoSobrepoe portal torres base =
 -- e)
 -- Verifica que só há no máximo uma onda ativa por portal
 
+verificaOnda :: [Onda] -> Bool
+verificaOnda lista = not (length (filter entradaOndaIguala0 lista) > 1)
 
+entradaOndaIguala0 :: Onda -> Bool
+entradaOndaIguala0 (Onda _ _ _ entrada) = entrada == 0
 
 
 
@@ -77,11 +78,35 @@ portalNaoSobrepoe portal torres base =
 -- 2 (Inimigos)
 -- Função que verifica se todas as alíneas forem válidas, esta também o é
 
--- Implementar função validaInimigos
+validaInimigos :: Jogo -> Bool
+validaInimigos jogo =
+    let
+        portais = portaisJogo jogo
+        inimigos = inimigosJogo jogo
+        mapa = mapaJogo jogo
+        torres = torresJogo jogo
+    in
+        verificaInimigosPorLancarPortais portais &&
+        inimigosSobreTerra mapa inimigos &&
+        inimigosNaoSobrepoemTorres inimigos torres &&
+        velocidadeDoInimigoNãoNegativa inimigos &&
+        verificaProjeteisInimigos inimigos
+
+
+
 
 
 -- a)
 -- Verifica se Todos os inimigos por lançar têm a posição do respetivo portal, nível de vida positivo, e lista de projéteis ativos vazia
+
+-- Função que verifica para todos os portais
+verificaInimigosPorLancarPortais :: [Portal] -> Bool
+verificaInimigosPorLancarPortais portais = all verificaPortal portais
+  where
+    verificaPortal :: Portal -> Bool
+    verificaPortal portal = 
+        verificaInimigosPorLancar (concatMap inimigosOnda (ondasPortal portal)) portal
+
 
 verificaInimigosPorLancar :: [Inimigo] -> Portal -> Bool
 verificaInimigosPorLancar inimigos portal =
@@ -135,17 +160,43 @@ velocidadeDoInimigoNãoNegativa inimigos =
 -- Verifica se a lista de projéteis ativas, não contêm mais do que um projétil do mesmo tipo
 -- Nem pode conter simultaneamente, projéteis do tipo Fogo e Resina, nem Fogo e Gelo
 
+verificaProjeteisInimigos :: [Inimigo] -> Bool
+verificaProjeteisInimigos inimigos =
+ all (\inimigo -> verificaprojeteisNormalizados (projeteisInimigo inimigo)) inimigos
 
+-- Função auxiliar para verificar se um inimigo é valido
+verificaprojeteisNormalizados :: [Projetil] -> Bool
+verificaprojeteisNormalizados projeteis =
+  let tipos = map tipoProjetil projeteis
+  in noDuplicates tipos && not (nemFogoeResinaNemFogoeGelo tipos)
 
+-- Função auxiliar para verificar se não há duplicados na lista de tipos de projéteis
+noDuplicates :: Eq a => [a] -> Bool
+noDuplicates [] = True
+noDuplicates (x:xs) = notElem x xs && noDuplicates xs
 
-
+-- Função auxiliar para verificar se há tipos combinações de fogo e resina ou fogo e gelo na lista
+nemFogoeResinaNemFogoeGelo :: [TipoProjetil] -> Bool
+nemFogoeResinaNemFogoeGelo tipos =
+  (elem Fogo tipos && elem Resina tipos) || 
+  (elem Fogo tipos && elem Gelo tipos)
 
 
 
 -- 3 (Torres)
 -- Função que verifica se todas as alíneas forem válidas, esta também o é
 
--- Implementar função validaTorres
+validaTorres :: Jogo -> Bool
+validaTorres jogo =
+    let
+        mapa = mapaJogo jogo
+        torres = torresJogo jogo
+    in
+        torresSobreRelva mapa torres &&
+        verificaAlcanceTorres torres &&
+        verificaRajadaTorres torres &&
+        verificaCicloPositivo torres &&
+        verificaTorresSobrepostas torres
 
 
 -- a)
@@ -175,9 +226,11 @@ verificaRajadaTorres torres =
 -- Verifica se o ciclo das torres é finito e superior a 0
 
 
+verificaCicloPositivo :: [Torre] -> Bool
+verificaCicloPositivo torres =
+    all (\x -> cicloTorre x > 0) torres
 
--- Função para verificar se o ciclo da torre é finito e maior que 0
-
+-- FALTA IMPLEMENTAR FUNÇÃO PARA VERIFICAR SE É FINITO
 
 
 -- e)
@@ -245,7 +298,9 @@ posicaoRelva mapa (x,y)
     | otherwise = False
 
 
--- Função auxiliar para igualar a posição ao seu indice
+-- Função auxiliar para igualar a posição ao seu indice na matriz (passar de posição no mapa para a posição na matriz)
 
-ajustaPosicao :: Posicao -> (Int, Int) -- Ainda a ver, caso se tenha que alterar para (Float, Float)
-ajustaPosicao (x, y) = (floor x, floor y)
+ajustaPosicao :: Posicao -> (Float, Float) 
+ajustaPosicao (x, y) = (fromIntegral (floor x), fromIntegral (floor y))
+
+
