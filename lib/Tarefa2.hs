@@ -11,11 +11,29 @@ module Tarefa2 where
 
 import LI12425
 
+
+-- Função que calcula a lista de inimigos no alcance da torre
+
 inimigosNoAlcance :: Torre -> [Inimigo] -> [Inimigo]
-inimigosNoAlcance = undefined
+inimigosNoAlcance _ [] = []
+inimigosNoAlcance torre (h:t) =
+    let
+        posTorre = posicaoTorre torre
+        posInimigo = posicaoInimigo h
+        rangeTorre = alcanceTorre torre
+    in
+        if distanciaEntreDoisPontos posTorre posInimigo <= rangeTorre then h : inimigosNoAlcance torre t else inimigosNoAlcance torre t
+
+-- Função auxiliar para calcular a distância entre dois pontos
+
+distanciaEntreDoisPontos :: Posicao -> Posicao -> Distancia
+distanciaEntreDoisPontos (x1,y1) (x2,y2) = sqrt $ (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
+
+
+-- Função que atualiza o inimigo depois do mesmo ser atingido por um projétil
 
 atingeInimigo :: Torre -> Inimigo -> Inimigo
-atingeInimigo = undefined
+atingeInimigo = undefined 
 
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
 ativaInimigo = undefined

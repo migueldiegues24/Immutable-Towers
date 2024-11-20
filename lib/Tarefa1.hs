@@ -42,10 +42,10 @@ portaisSobreTerra jogo = all (posicaoTerra mapaJ) (map posicaoPortal (portaisJog
 -- c)
 -- Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
 
+
+
+
 -- verificaCaminhoDeTerra :: Mapa -> Portal -> Base -> Bool -- busca em largura bfs ? busca em profundidade ? dfs ?
-
-
-
 
 
 
@@ -68,6 +68,8 @@ portalNaoSobrepoe portal torres base =
 
 -- e)
 -- Verifica que só há no máximo uma onda ativa por portal
+
+
 
 
 
