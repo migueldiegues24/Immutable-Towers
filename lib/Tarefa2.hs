@@ -12,6 +12,7 @@ module Tarefa2 where
 import LI12425
 
 
+-- 1
 -- Função que calcula a lista de inimigos no alcance da torre
 
 inimigosNoAlcance :: Torre -> [Inimigo] -> [Inimigo]
@@ -30,19 +31,63 @@ distanciaEntreDoisPontos :: Posicao -> Posicao -> Distancia
 distanciaEntreDoisPontos (x1,y1) (x2,y2) = sqrt $ (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
 
 
--- Função que atualiza o inimigo depois do mesmo ser atingido por um projétil
+-- 2
+-- Função que atualiza o inimigo depois deste ser atingido pela torre
 
 atingeInimigo :: Torre -> Inimigo -> Inimigo
-atingeInimigo = undefined 
+atingeInimigo = undefined
+
+
+-- Função auxiliar que atualiza a vida do Inimigo depois do mesmo ser atingido pela torre
+
+atualizaVidaInimigo :: Torre -> Inimigo -> Inimigo
+atualizaVidaInimigo torre inimigo =
+    let
+        dano = danoTorre torre
+        novaVida = max 0 (vidaInimigo inimigo - dano)
+    in
+        inimigo { vidaInimigo = novaVida }
+
+
+-- 3
+-- Função que ativa o inimigo, isto é sai do portal e passa a estar ativo no jogo
 
 ativaInimigo :: Portal -> [Inimigo] -> (Portal, [Inimigo])
-ativaInimigo = undefined
+ativaInimigo portal inimigosAtivos =
+    case ondasPortal portal of
+        [] -> (portal, inimigosAtivos) -- Não há ondas no portal
+        (onda:restoOndas) ->
+                if entradaOnda onda > 0 || tempoOnda onda > 0 || null (inimigosOnda onda)
+                then (portal, inimigosAtivos) -- Onda inativa ou sem inimigos
+                else
+                    case inimigosOnda onda of
+                        [] -> (portal, inimigosAtivos)
+                        (proximoInimigo:restoInimigos) ->
+                            let
+                                novaOnda = onda { inimigosOnda = restoInimigos, tempoOnda = cicloOnda onda }
+                                novoPortal = portal { ondasPortal = novaOnda : restoOndas }
+                                novosInimigosAtivos = (proximoInimigo : inimigosAtivos)
+                            in
+                                (novoPortal, novosInimigosAtivos)
+
+
+-- 4
+-- Função que verifica se o jogo terminou e por consequente se ganhou ou perdeu
 
 terminouJogo :: Jogo -> Bool
-terminouJogo = undefined
+terminouJogo jogo = ganhouJogo jogo || perdeuJogo jogo
 
 ganhouJogo :: Jogo -> Bool
-ganhouJogo = undefined
+ganhouJogo jogo =
+    let
+        inimigosAtivos = inimigosJogo jogo
+        vidadabase = vidaBase (baseJogo jogo)
+    in
+        null inimigosAtivos && vidadabase > 0
 
 perdeuJogo :: Jogo -> Bool
-perdeuJogo = undefined
+perdeuJogo jogo =
+    let
+        vidadabase = vidaBase (baseJogo jogo)
+    in
+        vidadabase <= 0

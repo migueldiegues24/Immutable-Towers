@@ -14,6 +14,7 @@ import LI12425
 -- Função que verifica se as 4 Validações são válidas, em caso afirmativo o jogo é válido
 validaJogo :: Jogo -> Bool
 validaJogo jogo =
+    validaPortais jogo &&
     validaInimigos jogo &&
     validaTorres jogo &&
     validaBase jogo
@@ -22,7 +23,18 @@ validaJogo jogo =
 -- 1 (Portais)
 -- Função que verifica se todas as alíneas forem válidas, esta também o é
 
--- Implementar função validaPortais
+validaPortais :: Jogo -> Bool
+validaPortais jogo =
+    let
+        portais = portaisJogo jogo
+        mapa = mapaJogo jogo
+        torres = torresJogo jogo
+        base = baseJogo jogo
+    in
+        possuiPortais portais &&
+        portaisSobreTerra mapa portais &&
+        nenhumPortalSobrepoe portais torres base &&
+        verificaOndaPorPortal portais
 
 
 -- a)
@@ -44,7 +56,7 @@ portaisSobreTerra mapa portais =
 -- Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
 
 
-
+-- Breadth first search
 
 
 -- d)
@@ -66,12 +78,18 @@ portalNaoSobrepoe portal torres base =
 -- e)
 -- Verifica que só há no máximo uma onda ativa por portal
 
+verificaOndaPorPortal :: [Portal] -> Bool
+verificaOndaPorPortal portais = all (\portal -> verificaOnda (ondasPortal portal)) portais
+
+
+-- Função que verifica se se houver mais do que uma onda com entrada igual a 0, é inválido
 verificaOnda :: [Onda] -> Bool
 verificaOnda lista = not (length (filter entradaOndaIguala0 lista) > 1)
 
+
+-- Função auxiliar que verifica se a entrada da Onda é igual a 0
 entradaOndaIguala0 :: Onda -> Bool
 entradaOndaIguala0 (Onda _ _ _ entrada) = entrada == 0
-
 
 
 
@@ -91,8 +109,6 @@ validaInimigos jogo =
         inimigosNaoSobrepoemTorres inimigos torres &&
         velocidadeDoInimigoNãoNegativa inimigos &&
         verificaProjeteisInimigos inimigos
-
-
 
 
 
@@ -230,9 +246,6 @@ verificaCicloPositivo :: [Torre] -> Bool
 verificaCicloPositivo torres =
     all (\x -> cicloTorre x > 0) torres
 
--- FALTA IMPLEMENTAR FUNÇÃO PARA VERIFICAR SE É FINITO
-
-
 -- e)
 -- Verifica se torres não estão sobrepostas
 
@@ -248,13 +261,15 @@ verificaTorresSobrepostas (t:ts) =
 
 validaBase :: Jogo -> Bool
 validaBase jogo =
-    let base = baseJogo jogo
+    let 
+        base = baseJogo jogo
         mapa = mapaJogo jogo
         torres = torresJogo jogo
         portais = portaisJogo jogo
-    in verificaBase mapa (posicaoBase base) &&
-       verificaCreditosBase base &&
-       baseNaoSobreposta base torres portais
+    in 
+        verificaBase mapa (posicaoBase base) &&
+        verificaCreditosBase base &&
+        baseNaoSobreposta base torres portais
 
 
 
@@ -276,10 +291,12 @@ verificaCreditosBase base = creditosBase base >= 0
 
 baseNaoSobreposta :: Base -> [Torre] -> [Portal] -> Bool
 baseNaoSobreposta base torres portais =
-    let posBase = posicaoBase base
+    let 
+        posBase = posicaoBase base
         baseNaoSobreTorres = not (any (\t -> posicaoTorre t == posBase) torres)
         baseNaoSobrePortais = not (any (\p -> posicaoPortal p == posBase) portais)
-    in baseNaoSobreTorres && baseNaoSobrePortais
+    in 
+        baseNaoSobreTorres && baseNaoSobrePortais
 
 -- Funções Auxiliares 
 
@@ -301,6 +318,6 @@ posicaoRelva mapa (x,y)
 -- Função auxiliar para igualar a posição ao seu indice na matriz (passar de posição no mapa para a posição na matriz)
 
 ajustaPosicao :: Posicao -> (Float, Float) 
-ajustaPosicao (x, y) = (fromIntegral (floor x), fromIntegral (floor y))
+ajustaPosicao (x, y) = (fromInteger (floor x), fromInteger (floor y))
 
 
