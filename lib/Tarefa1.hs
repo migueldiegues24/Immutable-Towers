@@ -53,8 +53,30 @@ portaisSobreTerra mapa portais =
 
 
 -- c)
--- Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
+-- | Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
 
+caminhoPortalBase :: Mapa -> [Portal] -> Bool
+caminhoPortalBase mapa [] = False
+caminhoPortalBase mapa (x:xs) = caminhoPortalBase mapa (posicaoPortal x) || caminhoPortalBase mapa xs
+
+-- | Verifica se há um caminho de terra da posicão inicial até à base
+caminhoBase :: Mapa -> Posicao -> Bool
+caminhoBase mapa posInicial = procuraCaminho [posInicial] []
+   where
+    destino = posicaoBase mapa
+
+    -- Função auxiliar de procura
+    procuraCaminho :: [Posicao] -> [Posicao] -> Bool 
+    procuraCaminho [] _ = False
+    procuraCaminho (x:xs) explorado | x == metaFinal      = True
+                                    | x `elem` explorado  = procuraCaminho xs explorado
+                                    | not (Terra mapa x)  = procuraCaminho xs explorado
+                                    | otherwise           = let vizinhos = posAdjacentes x
+                                                            in procuraCaminho (xs ++ vizinhos) (x:explorado)
+ 
+-- | Função que retorna posicões adjacentes de uma posição
+posAdjacentes :: Posicao -> [Posicao]
+posAdjacentes (x,y) = [(x+1,y),(x-1,y),(x,y+1),(x,y-1)]
 
 -- Breadth first search
 
