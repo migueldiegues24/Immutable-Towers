@@ -3,8 +3,6 @@ module Main where
 import Desenhar
 import Eventos
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
-import ImmutableTowers
 import Tempo
 import LI12425
 

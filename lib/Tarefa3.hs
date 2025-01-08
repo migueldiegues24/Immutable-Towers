@@ -13,31 +13,38 @@ module Tarefa3 where
 
 import LI12425
 
-{-
-atualizaJogo :: Tempo   -> Jogo -> Jogo
-atualizaJogo tempo jogo@(Jogo base portais torres mapa inimigos loja) = 
-    let (torresAtualizadas, inimigosAtualizados) = atualizaTeI
-        movInimigos = inimigosAtualizados tempo inimigosAtualizados mapa
-    in jogo { torresJogo = torresAtualizadas, inimigosJogo = movInimigos}
 
--}
-{-}
-atualizaTeI :: Tempo -> [Torre] -> [Inimigo] -> ([Torre],[Inimigo])
-atualizaTeI tempo torres inimigos = foldr (atualizaTorre tempo) ([],inimigos) torres
+atualizaJogo :: Tempo -> Jogo -> Jogo
+atualizaJogo tempo jogo =
+  let
+      jogoComPortaisAtualizados = atualizaPortais tempo jogo
+      jogoComInimigosAtualizados = atualizaInimigos tempo jogoComPortaisAtualizados
+      (torresAtualizadas, inimigosAtualizados) =
+        atualizaTorres tempo (torresJogo jogoComInimigosAtualizados) (inimigosJogo jogoComInimigosAtualizados)
+  in
+      jogoComInimigosAtualizados
+        { torresJogo = torresAtualizadas,
+          inimigosJogo = inimigosAtualizados }
 
-atualizaTorre :: Tempo -> Torre -> ([Torre],[Inimigo]) -> ([Torre],[Inimigo])
-atualizaTorre tempo torre (torresAtualizadas, inimigosVivos) | tempoTorre torre > 0 = 
-                                                                let torrePronta = torre { tempoTorre = max 0 (tempoTorre torre - tempo)}
-                                                                in (torrePronta : torresAtualizadas, inimigosVivos)
-                                                             | otherwise = 
-                                                                let inimigosAlvo = detetaInimigos torre inimigosVivos
-                                                                    (inimigosAtingidos, projetil) = disparaProjeteis torre inimigosAlvo
-                                                                    inimigosAtualizados = atualizaVidaInimigos inimigosVivos inimigosAtingidos projetil
-                                                                    torreAtualizada = torre { tempoTorre = cicloTorre torre }
-                                                                in (torreAtualizada : torresAtualizadas, inimigosAtualizados)
--}
+
+
 
 -- 3.3.1 Comportamento das Torres
+
+atualizaTorres :: Tempo -> [Torre] -> [Inimigo] -> ([Torre], [Inimigo])
+atualizaTorres tempo torres inimigos = foldr (atualizaTorre tempo) ([], inimigos) torres
+
+atualizaTorre :: Tempo -> Torre -> ([Torre], [Inimigo]) -> ([Torre], [Inimigo])
+atualizaTorre tempo torre (torresAtualizadas, inimigosVivos)
+  | tempoTorre torre > 0 = 
+      let torrePronta = torre { tempoTorre = max 0 (tempoTorre torre - tempo) }
+      in (torrePronta : torresAtualizadas, inimigosVivos)
+  | otherwise =
+      let projeteis = disparaProjeteis torre inimigosVivos
+          inimigosAtualizados = atualizaVidaInimigos inimigosVivos projeteis
+          torreAtualizada = torre { tempoTorre = cicloTorre torre }
+      in (torreAtualizada : torresAtualizadas, inimigosAtualizados)
+
 
 
 -- 1. Detetar inimigos dentro do seu alcance
@@ -50,37 +57,40 @@ distancia (x1,y1) (x2,y2) = sqrt $ (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
 
 -- 2. Escolher e disparar automaticamente projéteis contra os inimigos detetados
 
-disparaProjeteis :: Torre -> [Inimigo] -> ([Inimigo],[Projetil])
-disparaProjeteis torre inimigos = 
+-- Dispara projéteis e retorna a lista de posições e danos
+disparaProjeteis :: Torre -> [Inimigo] -> [(Posicao, Float)]
+disparaProjeteis torre inimigos =
   let alvo = take (rajadaTorre torre) inimigos
-      dano = replicate (length alvo) (projetilTorre torre)
-  in (alvo,dano)
+      dano = danoTorre torre
+  in map (\inimigo -> (posicaoInimigo inimigo, dano)) alvo
 
-{-
-atualizaVidaInimigos :: [Inimigo] -> [Inimigo] -> [Projetil] -> [Inimigo]
-atualizaVidaInimigos inimigos alvo dano = map (atualizaVidaInimigo alvo dano) inimigos
 
-atualizaVidaInimigo :: [Inimigo] -> [Projetil] -> Inimigo -> Inimigo
-atualizaVidaInimigo alvo dano inimigo = 
-  case lookup (posicaoInimigo inimigo) (zip (map posicaoInimigo alvo) dano) of 
-    Just danoSofrido -> inimigo {vidaInimigo = max 0 (vidaInimigo inimigo - danoSofrido)}
+-- Atualiza a vida dos inimigos com base nos projéteis disparados
+atualizaVidaInimigos :: [Inimigo] -> [(Posicao, Float)] -> [Inimigo]
+atualizaVidaInimigos inimigos projeteis =
+  map (atualizaVidaInimigo projeteis) inimigos
+
+-- Atualiza a vida de um único inimigo
+atualizaVidaInimigo :: [(Posicao, Float)] -> Inimigo -> Inimigo
+atualizaVidaInimigo projeteis inimigo =
+  case lookup (posicaoInimigo inimigo) projeteis of
+    Just dano -> inimigo { vidaInimigo = max 0 (vidaInimigo inimigo - dano) }
     Nothing -> inimigo
--}
 
 --3.3.2
 
 -- Atualiza todos os inimigos que estao no jogo
-{-
-inimigosAtualizados :: Tempo -> Jogo -> Jogo
-inimigosAtualizados tempo jogo =
+
+atualizaInimigos :: Tempo -> Jogo -> Jogo
+atualizaInimigos tempo jogo =
     let 
         inimigosMovidos = moveInimigos tempo (inimigosJogo jogo) (mapaJogo jogo)
         (baseAtualizada, outrosInimigos) = verificaInimigosBase (baseJogo jogo) inimigosMovidos
         inimigosComEfeitos = efeitosInimigos tempo outrosInimigos
         inimigosFinal = removeInimigosMortos inimigosComEfeitos
-        baseComCreditos = creditos baseAtualizada outrosInimigos inimigosFinal
+        baseComCreditos = creditos baseAtualizada outrosInimigos
     in jogo { baseJogo = baseComCreditos, inimigosJogo = inimigosFinal }
--}
+
 
 -- Movimenta todos os inimigos do mapa
 moveInimigos :: Tempo -> [Inimigo] -> Mapa -> [Inimigo]
@@ -173,30 +183,35 @@ baseAlcancada :: Inimigo -> Base -> Bool
 baseAlcancada inimigo base = posicaoInimigo inimigo == posicaoBase base
 
 -- Processa inimigos que atingiram a base
-{-
+
 verificaInimigosBase :: Base -> [Inimigo] -> (Base, [Inimigo])
 verificaInimigosBase base [] = (base, [])
 verificaInimigosBase base (inimigos:r)
-  | atingiuBase i base = let baseAtualizada = danoBase inimigos base
+  | atingiuBase inimigos base = let baseAtualizada = danoBase inimigos base
                          in verificaInimigosBase baseAtualizada r
   | otherwise = let (baseAtualizada, outrosInimigos) = verificaInimigosBase base r
                 in (baseAtualizada, inimigos : outrosInimigos)
--}
+
+
+atingiuBase :: Inimigo -> Base -> Bool
+atingiuBase inimigo base = posicaoInimigo inimigo == posicaoBase base
+
 
 danoBase :: Inimigo -> Base -> Base
 danoBase inimigo base = base { vidaBase = vidaBase base - ataqueInimigo inimigo }
 
 -- Adiciona créditos à base quando os inimigos sao eliminados
-{-
-creditos :: Base -> [Inimigo] -> [Inimigo] -> Base
-creditos base inimigosI inimigosF =
+
+creditos :: Base -> [Inimigo] -> Base
+creditos base inimigosI =
     let eliminados = filter (\x -> vidaInimigo x <= 0) inimigosI
         total = sum (map butimInimigo eliminados)
-    in base { creditosBase = creditos base + total }
--}
+    in base { creditosBase = creditosBase base + total }
+
+
 -- Remove os inimigos eliminados
-removeInimigos :: [Inimigo] -> [Inimigo]
-removeInimigos inimigos = filter (\inimigo -> vidaInimigo inimigo > 0) inimigos
+removeInimigosMortos :: [Inimigo] -> [Inimigo]
+removeInimigosMortos inimigos = filter (\inimigo -> vidaInimigo inimigo > 0) inimigos
 
 
 -- 3.3.3 Comportamento dos Portais
