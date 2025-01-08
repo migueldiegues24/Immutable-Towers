@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Eta reduce" #-}
 {-|
 Module      : Tarefa2
 Description : Auxiliares do Jogo

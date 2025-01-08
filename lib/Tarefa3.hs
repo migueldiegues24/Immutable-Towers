@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Eta reduce" #-}
 {-|
 Module      : Tarefa3
 Description : Mecânica do Jogo
@@ -10,13 +12,16 @@ Módulo para a realização da Tarefa 3 de LI1 em 2024/25
 module Tarefa3 where
 
 import LI12425
+
 {-
 atualizaJogo :: Tempo   -> Jogo -> Jogo
-atualizaJogo tempo jogo@(Jogo base portbaseais torres inimigos loja) = 
+atualizaJogo tempo jogo@(Jogo base portais torres mapa inimigos loja) = 
     let (torresAtualizadas, inimigosAtualizados) = atualizaTeI
         movInimigos = inimigosAtualizados tempo inimigosAtualizados mapa
     in jogo { torresJogo = torresAtualizadas, inimigosJogo = movInimigos}
-    
+
+-}
+{-}
 atualizaTeI :: Tempo -> [Torre] -> [Inimigo] -> ([Torre],[Inimigo])
 atualizaTeI tempo torres inimigos = foldr (atualizaTorre tempo) ([],inimigos) torres
 
@@ -30,48 +35,42 @@ atualizaTorre tempo torre (torresAtualizadas, inimigosVivos) | tempoTorre torre 
                                                                     inimigosAtualizados = atualizaVidaInimigos inimigosVivos inimigosAtingidos projetil
                                                                     torreAtualizada = torre { tempoTorre = cicloTorre torre }
                                                                 in (torreAtualizada : torresAtualizadas, inimigosAtualizados)
+-}
+
+-- 3.3.1 Comportamento das Torres
+
+
+-- 1. Detetar inimigos dentro do seu alcance
+
 detetaInimigos :: Torre -> [Inimigo] -> [Inimigo]
 detetaInimigos torre = filter (\inimigo -> distancia (posicaoTorre torre) (posicaoInimigo inimigo) <= alcanceTorre torre)
 
 distancia :: Posicao -> Posicao -> Distancia
 distancia (x1,y1) (x2,y2) = sqrt $ (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
 
+-- 2. Escolher e disparar automaticamente projéteis contra os inimigos detetados
 
 disparaProjeteis :: Torre -> [Inimigo] -> ([Inimigo],[Projetil])
-disparaProjeteis torre inimigos = let alvo = take (rajadaTorre torre) inimigos
-                                      dano = replicate (length alvo) (projetilTorre torre)
-                                  in (alvo,dano)
+disparaProjeteis torre inimigos = 
+  let alvo = take (rajadaTorre torre) inimigos
+      dano = replicate (length alvo) (projetilTorre torre)
+  in (alvo,dano)
 
-
+{-
 atualizaVidaInimigos :: [Inimigo] -> [Inimigo] -> [Projetil] -> [Inimigo]
-atualizaVidaInimigos inimigos alvo dano = map (atualizaInimigo alvo dano) inimigos
+atualizaVidaInimigos inimigos alvo dano = map (atualizaVidaInimigo alvo dano) inimigos
 
-atualizaInimigo :: [Inimigo] -> [Projetil] -> Inimigo -> Inimigo
-atualizaInimigo alvo dano inimigo = case lookup (posicaoInimigo inimigo) (zip (map posicaoInimigo alvo) dano) 
-                                      of Just danoSofrido -> inimigo {vidaInimigo = max 0 (vidaInimigo inimigo - danoSofrido)}
-                                         Nothing -> inimigo
-
-inimigosAtualizados1 :: Tempo -> [Inimigo] -> Mapa -> [Inimigo]
-inimigosAtualizados1 tempo inimigos mapa = map (moveInimigo tempo mapa) inimigos
-
-
-moveInimigo1 :: Tempo -> Mapa -> Inimigo -> Inimigo
-moveInimigo1 tempo mapa inimigo = 
-  let (x, y) = posicaoInimigo inimigo
-      v = velocidadeInimigo inimigo * tempo
-      novaPosicao = case direcaoInimigo inimigo of
-                      Norte -> (x, y - v)
-                      Sul   -> (x, y + v)
-                      Este  -> (x + v, y)
-                      Oeste -> (x - v, y)
-  in if posicaoValida mapa novaPosicao 
-       then inimigo { posicaoInimigo = novaPosicao } 
-       else inimigo
-
+atualizaVidaInimigo :: [Inimigo] -> [Projetil] -> Inimigo -> Inimigo
+atualizaVidaInimigo alvo dano inimigo = 
+  case lookup (posicaoInimigo inimigo) (zip (map posicaoInimigo alvo) dano) of 
+    Just danoSofrido -> inimigo {vidaInimigo = max 0 (vidaInimigo inimigo - danoSofrido)}
+    Nothing -> inimigo
+-}
 
 --3.3.2
 
 -- Atualiza todos os inimigos que estao no jogo
+{-
 inimigosAtualizados :: Tempo -> Jogo -> Jogo
 inimigosAtualizados tempo jogo =
     let 
@@ -81,6 +80,7 @@ inimigosAtualizados tempo jogo =
         inimigosFinal = removeInimigosMortos inimigosComEfeitos
         baseComCreditos = creditos baseAtualizada outrosInimigos inimigosFinal
     in jogo { baseJogo = baseComCreditos, inimigosJogo = inimigosFinal }
+-}
 
 -- Movimenta todos os inimigos do mapa
 moveInimigos :: Tempo -> [Inimigo] -> Mapa -> [Inimigo]
@@ -91,18 +91,18 @@ moveInimigo :: Tempo -> Inimigo -> Mapa -> Inimigo
 moveInimigo tempo inimigo mapa | efeitoGelo inimigo = inimigo -- Não se move se estiver congelado
                                | otherwise =
       let velocidade = velocidadeResina inimigo
-          distancia = velocidade * tempo
-          novaPosicao = posicaoNova (posicaoInimigo inimigo) distancia (direcaoInimigo inimigo)
+          distancia2 = velocidade * tempo
+          novaPosicao = posicaoNova (posicaoInimigo inimigo) distancia2 (direcaoInimigo inimigo)
       in if posicaoValida mapa novaPosicao
          then inimigo { posicaoInimigo = novaPosicao }
          else inimigo -- Não move se a nova posição for inválida
 
 -- 
 posicaoNova :: Posicao -> Float -> Direcao -> Posicao
-posicaoNova (x, y) distancia Norte = (x, y - distancia)
-posicaoNova (x, y) distancia Sul   = (x, y + distancia)
-posicaoNova (x, y) distancia Este  = (x + distancia, y)
-posicaoNova (x, y) distancia Oeste = (x - distancia, y)
+posicaoNova (x, y) d Norte = (x, y - d)
+posicaoNova (x, y) d Sul   = (x, y + d)
+posicaoNova (x, y) d Este  = (x + d, y)
+posicaoNova (x, y) d Oeste = (x - d, y)
 
 -- Verifica se a posição é válida no mapa considreando apenas o terreno "Terra"
 posicaoValida :: Mapa -> Posicao -> Bool
@@ -117,13 +117,13 @@ posicaoValida mapa (x, y) | posy < 0 || posy < 0 = False
 efeitoGelo :: Inimigo -> Bool
 efeitoGelo inimigo = verificaGelo (projeteisInimigo inimigo)
    where verificaGelo[] = False
-         verificaGelo (x:xs) | TipoProjetil x == Gelo = True
+         verificaGelo (x:xs) | tipoProjetil x == Gelo = True
                              | otherwise = verificaGelo xs
 
 -- Verifica se há algum projétil do tipo Resina
 torreResina :: [Projetil] -> Bool
 torreResina [] = False
-torreResina (x:xs) | TipoProjetil x == Resina = True
+torreResina (x:xs) | tipoProjetil x == Resina = True
                    | otherwise = torreResina xs
 
 -- Calcula a velocidade do inimigo quando afetado pelo projetil de resina
@@ -133,7 +133,7 @@ velocidadeResina inimigo | torreResina (projeteisInimigo inimigo) = 0.7
 
 -- Aplica os efeitos dos projetei sobre os inimigos
 efeitosInimigos :: Tempo -> [Inimigo] -> [Inimigo]
-efeitosInimigos tempo [] = [] -- Não há inimigos para processar
+efeitosInimigos _ [] = [] -- Não há inimigos para processar
 efeitosInimigos tempo (inimigo:r) =
     let inimigoAtualizado = efeitosInimigo tempo inimigo
         outrosInimigos = efeitosInimigos tempo r
@@ -145,33 +145,35 @@ efeitosInimigo tempo inimigo =
     let 
         fogo = danoFogo tempo (projeteisInimigo inimigo)
         vidaAtualizada = max 0 (vidaInimigo inimigo - fogo)
-        projeteisAtualizados = duracaoProjetil tempo (projeteisInimigo inimigo)
+        projeteisAtualizados = atualizaDuracaoProjetil tempo (projeteisInimigo inimigo)
     in 
         inimigo { vidaInimigo = vidaAtualizada, projeteisInimigo = projeteisAtualizados }
 
 -- Calcula o dano contínuo de Fogo
 danoFogo :: Tempo -> [Projetil] -> Float
-danoFogo tempo [] = 0 
-danoFogo tempo (x:xs) | TipoProjetil p == Fogo = 5.0 * tempo + danoFogo tempo xs
+danoFogo _ [] = 0 
+danoFogo tempo (x:xs) | tipoProjetil x == Fogo = 5.0 * tempo + danoFogo tempo xs
                          | otherwise = danoFogo tempo xs
 
 -- Atualiza a duração dos projéteis nos inimigos
-duracaoProjetil :: Tempo -> [Projetil] -> [Projetil]
-duracaoProjetil tempo [] = [] 
-duracaoProjetil tempo (x:xs) =
-    let duracaoAtualizada = case duracaoProjetil p of
+
+atualizaDuracaoProjetil :: Tempo -> [Projetil] -> [Projetil]
+atualizaDuracaoProjetil _ [] = [] 
+atualizaDuracaoProjetil tempo (x:xs) =
+    let duracaoAtualizada = case duracaoProjetil x of
                               Finita d -> if d - tempo > 0 then Finita (d - tempo) else Finita 0
                               Infinita -> Infinita
-        restoProjeteis = duracaoProjetil tempo xs
+        restoProjeteis = atualizaDuracaoProjetil tempo xs
     in if duracaoAtualizada == Finita 0
        then restoProjeteis 
-       else p { duracaoProjetil = duracaoAtualizada } : restoProjeteis
+       else x { duracaoProjetil = duracaoAtualizada } : restoProjeteis
 
 -- Verifica se um inimigo conseguiu chegar a base
 baseAlcancada :: Inimigo -> Base -> Bool
 baseAlcancada inimigo base = posicaoInimigo inimigo == posicaoBase base
 
 -- Processa inimigos que atingiram a base
+{-
 verificaInimigosBase :: Base -> [Inimigo] -> (Base, [Inimigo])
 verificaInimigosBase base [] = (base, [])
 verificaInimigosBase base (inimigos:r)
@@ -179,19 +181,20 @@ verificaInimigosBase base (inimigos:r)
                          in verificaInimigosBase baseAtualizada r
   | otherwise = let (baseAtualizada, outrosInimigos) = verificaInimigosBase base r
                 in (baseAtualizada, inimigos : outrosInimigos)
+-}
 
 danoBase :: Inimigo -> Base -> Base
 danoBase inimigo base = base { vidaBase = vidaBase base - ataqueInimigo inimigo }
 
 -- Adiciona créditos à base quando os inimigos sao eliminados
+{-
 creditos :: Base -> [Inimigo] -> [Inimigo] -> Base
 creditos base inimigosI inimigosF =
     let eliminados = filter (\x -> vidaInimigo x <= 0) inimigosI
         total = sum (map butimInimigo eliminados)
-    in base { creditos = creditos base + total }
-
+    in base { creditosBase = creditos base + total }
+-}
 -- Remove os inimigos eliminados
 removeInimigos :: [Inimigo] -> [Inimigo]
 removeInimigos inimigos = filter (\inimigo -> vidaInimigo inimigo > 0) inimigos
 
--}
