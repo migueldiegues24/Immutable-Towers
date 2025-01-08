@@ -54,7 +54,7 @@ portaisSobreTerra mapa portais =
 
 -- c)
 -- | Verifica se existe pelo menos um caminho de Terra ligando um portal à Base
-
+{-
 caminhoPortalBase :: Mapa -> [Portal] -> Bool
 caminhoPortalBase mapa [] = False
 caminhoPortalBase mapa (x:xs) = caminhoPortalBase mapa (posicaoPortal x) || caminhoPortalBase mapa xs
@@ -79,7 +79,7 @@ posAdjacentes :: Posicao -> [Posicao]
 posAdjacentes (x,y) = [(x+1,y),(x-1,y),(x,y+1),(x,y-1)]
 
 -- Breadth first search
-
+-}
 
 -- d)
 -- Verifica se os portais não se sobrepõe a Torres ou à Base

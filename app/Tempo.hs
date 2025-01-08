@@ -1,7 +1,8 @@
 module Tempo where
 
 import ImmutableTowers
-import LI12425
+import LI12425 ( Jogo )
 
-reageTempo :: Tempo -> ImmutableTowers -> ImmutableTowers
-reageTempo _ it = it
+-- Função para reagir à passagem do tempo
+reageTempo :: Float -> Jogo -> Jogo
+reageTempo _ jogo = jogo

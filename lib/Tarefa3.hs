@@ -10,7 +10,7 @@ Módulo para a realização da Tarefa 3 de LI1 em 2024/25
 module Tarefa3 where
 
 import LI12425
-
+{-
 atualizaJogo :: Tempo   -> Jogo -> Jogo
 atualizaJogo tempo jogo@(Jogo base portbaseais torres inimigos loja) = 
     let (torresAtualizadas, inimigosAtualizados) = atualizaTeI
@@ -36,11 +36,13 @@ detetaInimigos torre = filter (\inimigo -> distancia (posicaoTorre torre) (posic
 distancia :: Posicao -> Posicao -> Distancia
 distancia (x1,y1) (x2,y2) = sqrt $ (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
 
+
 disparaProjeteis :: Torre -> [Inimigo] -> ([Inimigo],[Projetil])
 disparaProjeteis torre inimigos = let alvo = take (rajadaTorre torre) inimigos
-                             dano = replicate (length alvo) (projetilTorre torre)
-                         in (alvo,dano)
-            
+                                      dano = replicate (length alvo) (projetilTorre torre)
+                                  in (alvo,dano)
+
+
 atualizaVidaInimigos :: [Inimigo] -> [Inimigo] -> [Projetil] -> [Inimigo]
 atualizaVidaInimigos inimigos alvo dano = map (atualizaInimigo alvo dano) inimigos
 
@@ -49,18 +51,23 @@ atualizaInimigo alvo dano inimigo = case lookup (posicaoInimigo inimigo) (zip (m
                                       of Just danoSofrido -> inimigo {vidaInimigo = max 0 (vidaInimigo inimigo - danoSofrido)}
                                          Nothing -> inimigo
 
-inimigosAtualizados :: Tempo -> [Inimigo] -> Mapa -> [Inimigo]
-inimigosAtualizados tempo inimigos mapa = map (moveInimigo tempo mapa) inimigos
+inimigosAtualizados1 :: Tempo -> [Inimigo] -> Mapa -> [Inimigo]
+inimigosAtualizados1 tempo inimigos mapa = map (moveInimigo tempo mapa) inimigos
 
-moveInimigo :: Tempo -> Mapa -> Inimigo -> Inimigo
-moveInimigo tempo mapa inimigo = let (x,y) = posicaoInimigo inimigo 
-                                         v = velocidadeInimigo inimigo * tempo
-                                         novaPosicao = case direcaoInimigo inimigo of
-                                                       Norte -> (x,y-v)
-                                                       Sul   -> (x,y+v)
-                                                       Este  -> (x+v,y)
-                                                       Oeste -> (x-v,y)
-                                 in if posicaoValida mapa novaPosicao then inimigo  {posicaoInimigo = novaPosicao} else inimigo 
+
+moveInimigo1 :: Tempo -> Mapa -> Inimigo -> Inimigo
+moveInimigo1 tempo mapa inimigo = 
+  let (x, y) = posicaoInimigo inimigo
+      v = velocidadeInimigo inimigo * tempo
+      novaPosicao = case direcaoInimigo inimigo of
+                      Norte -> (x, y - v)
+                      Sul   -> (x, y + v)
+                      Este  -> (x + v, y)
+                      Oeste -> (x - v, y)
+  in if posicaoValida mapa novaPosicao 
+       then inimigo { posicaoInimigo = novaPosicao } 
+       else inimigo
+
 
 --3.3.2
 
@@ -135,10 +142,12 @@ efeitosInimigos tempo (inimigo:r) =
 -- Aplica os efeitos a um unico inimigo (Fogo)
 efeitosInimigo :: Tempo -> Inimigo -> Inimigo
 efeitosInimigo tempo inimigo =
-    let fogo = danoFogo tempo (projeteisInimigo inimigo)
+    let 
+        fogo = danoFogo tempo (projeteisInimigo inimigo)
         vidaAtualizada = max 0 (vidaInimigo inimigo - fogo)
         projeteisAtualizados = duracaoProjetil tempo (projeteisInimigo inimigo)
-    in inimigo { vidaInimigo = vidaAtualizada, projeteisInimigo = projeteisAtualizados }
+    in 
+        inimigo { vidaInimigo = vidaAtualizada, projeteisInimigo = projeteisAtualizados }
 
 -- Calcula o dano contínuo de Fogo
 danoFogo :: Tempo -> [Projetil] -> Float
@@ -185,3 +194,4 @@ creditos base inimigosI inimigosF =
 removeInimigos :: [Inimigo] -> [Inimigo]
 removeInimigos inimigos = filter (\inimigo -> vidaInimigo inimigo > 0) inimigos
 
+-}
