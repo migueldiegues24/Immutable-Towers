@@ -198,3 +198,55 @@ creditos base inimigosI inimigosF =
 removeInimigos :: [Inimigo] -> [Inimigo]
 removeInimigos inimigos = filter (\inimigo -> vidaInimigo inimigo > 0) inimigos
 
+
+-- 3.3.3 Comportamento dos Portais
+
+
+-- Função principal que atualiza os portais do Jogo
+
+atualizaPortais :: Tempo -> Jogo -> Jogo
+atualizaPortais tempo jogo = jogo { 
+    portaisJogo = novosPortais,
+    inimigosJogo = inimigosAtuais ++ concat novosInimigos
+  }
+  where
+    (novosPortais, novosInimigos) = unzip $ map (atualizaPortal tempo) (portaisJogo jogo)
+    inimigosAtuais = inimigosJogo jogo
+
+-- Função auxiliar que atualiza um portal
+
+atualizaPortal :: Tempo -> Portal -> (Portal, [Inimigo])
+atualizaPortal tempo portal = 
+    let ondasAtualizadas = atualizaOndas tempo (ondasPortal portal)
+        (novasOndas, novosInimigos) = processaOndas ondasAtualizadas
+    in (portal { ondasPortal = novasOndas }, novosInimigos)
+
+
+-- Funções auxiliares
+
+-- Atualiza o tempo das ondas
+
+atualizaOndas :: Tempo -> [Onda] -> [Onda]
+atualizaOndas tempo = map atualizaOnda
+  where
+    atualizaOnda onda
+      | entradaOnda onda > 0 = onda { entradaOnda = entradaOnda onda - tempo }
+      | tempoOnda onda > 0 = onda { tempoOnda = max 0 (tempoOnda onda - tempo) }
+      | otherwise = onda
+
+-- Processa as ondas para lançar inimigos
+
+processaOndas :: [Onda] -> ([Onda], [Inimigo])
+processaOndas [] = ([], [])
+processaOndas (onda:resto)
+  | entradaOnda onda > 0 || null (inimigosOnda onda) = 
+      let (restoOndas, novosInimigos) = processaOndas resto
+      in (onda : restoOndas, novosInimigos)
+  | tempoOnda onda <= 0 = 
+      let inimigoLançado = head (inimigosOnda onda)
+          ondaAtualizada = onda { inimigosOnda = tail (inimigosOnda onda), tempoOnda = cicloOnda onda }
+          (restoOndas, novosInimigos) = processaOndas resto
+      in (ondaAtualizada : restoOndas, inimigoLançado : novosInimigos)
+  | otherwise = 
+      let (restoOndas, novosInimigos) = processaOndas resto
+      in (onda : restoOndas, novosInimigos)
