@@ -1,29 +1,25 @@
 module Main where
 
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Pure.Game()
+
+import LI12425
 import Desenhar
 import Eventos
-import Graphics.Gloss
 import Tempo
-import LI12425
 
--- Definição da janela
+-- | Configuração inicial da janela
 tamanhoJanela :: (Int, Int)
-tamanhoJanela = (1400, 1000)
+tamanhoJanela = (800, 600)
 
-janela :: Display
-janela = InWindow "Immutable Towers" tamanhoJanela (250, 0)
+tituloJanela :: String
+tituloJanela = "Immutable Towers"
 
-fundo :: Color
-fundo = white
-
-fr :: Int
-fr = 60
-
--- Estado inicial do jogo
+-- | Estado inicial do jogo (placeholder: criar um exemplo para testar)
 estadoInicial :: Jogo
 estadoInicial = Jogo {
-    baseJogo = Base { posicaoBase = (-300, 340), vidaBase = 100, creditosBase = 50 },
-    portaisJogo = [Portal { posicaoPortal = (-700, 500), ondasPortal = [] }],
+    baseJogo = Base { posicaoBase = (5, 2), vidaBase = 100, creditosBase = 50 },
+    portaisJogo = [Portal { posicaoPortal = (0, 0), ondasPortal = [] }],
     torresJogo = [],
     mapaJogo = [[Terra, Terra, Relva, Agua, Agua, Agua],
                 [Relva, Terra, Relva, Agua, Relva, Relva],
@@ -33,9 +29,15 @@ estadoInicial = Jogo {
                 [Agua, Agua, Agua, Agua, Relva, Relva]],
     inimigosJogo = [],
     lojaJogo = []
-  }
+  }  
 
--- Função principal
+-- | Main: configuração inicial e loop do jogo
 main :: IO ()
-main = play janela fundo fr estadoInicial desenha reageEventos reageTempo
-
+main = play
+    (InWindow tituloJanela tamanhoJanela (100, 100)) -- Janela
+    white                                           -- Cor do fundo
+    60                                              -- Frames por segundo
+    estadoInicial                                   -- Estado inicial do jogo
+    desenhaJogo                                     -- Função de desenho
+    reageEventos                                    -- Função para reagir a eventos
+    reageTempo                                      -- Função para atualizar o jogo com o tempo

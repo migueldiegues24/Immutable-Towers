@@ -237,6 +237,7 @@ validaTorres jogo =
         verificaTorresSobrepostas torres
 
 
+
 -- a)
 -- Verifica se as Torres estão posicionadas na relva
 
@@ -330,11 +331,13 @@ posicaoTerra mapa (x,y)
 
 
 -- Função auxiliar para verificar se uma certa posição é Relva
-
 posicaoRelva :: Mapa -> Posicao -> Bool
-posicaoRelva mapa (x,y)
-    | (mapa !! floor y) !! floor x == Relva = True
+posicaoRelva mapa (x, y)
+    | yIndex >= 0 && yIndex < length mapa && xIndex >= 0 && xIndex < length (mapa !! yIndex) = (mapa !! yIndex) !! xIndex == Relva
     | otherwise = False
+  where
+    xIndex = round x 
+    yIndex = round y 
 
 
 -- Função auxiliar para igualar a posição ao seu indice na matriz (passar de posição no mapa para a posição na matriz)
@@ -342,4 +345,9 @@ posicaoRelva mapa (x,y)
 ajustaPosicao :: Posicao -> (Float, Float) 
 ajustaPosicao (x, y) = (fromInteger (floor x), fromInteger (floor y))
 
+-- | Conversão de coordenadas da tela para posições lógicas
+coordsParaPosicao :: (Float, Float) -> Posicao
+coordsParaPosicao (x, y) = (x / 40, y / 40)
 
+posicaoParaCoords :: Posicao -> (Float, Float)
+posicaoParaCoords (cx, cy) = (cx * 40, cy * 40)

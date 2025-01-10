@@ -1,8 +1,8 @@
 module Tempo where
 
-import ImmutableTowers
-import LI12425 ( Jogo )
+import LI12425
+import Tarefa3 (atualizaJogo)
 
--- Função para reagir à passagem do tempo
+-- | Reage à passagem do tempo, atualizando o estado do jogo
 reageTempo :: Float -> Jogo -> Jogo
-reageTempo _ jogo = jogo
+reageTempo delta jogo = atualizaJogo delta jogo
