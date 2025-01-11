@@ -176,9 +176,6 @@ atualizaDuracaoProjetil tempo (x:xs) =
        then restoProjeteis 
        else x { duracaoProjetil = duracaoAtualizada } : restoProjeteis
 
--- Verifica se um inimigo conseguiu chegar a base
-baseAlcancada :: Inimigo -> Base -> Bool
-baseAlcancada inimigo base = posicaoInimigo inimigo == posicaoBase base
 
 -- Processa inimigos que atingiram a base
 

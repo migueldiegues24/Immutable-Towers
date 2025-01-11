@@ -21,7 +21,7 @@ desenhaLinha :: Integral a => a -> [Terreno] -> [Picture]
 desenhaLinha y linha = zipWith (desenhaCelula y) [0..] linha
 
 desenhaCelula :: (Integral a1, Integral a2) => a2 -> a1 -> Terreno -> Picture
-desenhaCelula y x terreno = translate (fromIntegral x * 40) (-fromIntegral y * 40) (desenhaTerreno terreno)
+desenhaCelula y x terreno = translate (fromIntegral x * 40) (fromIntegral y * 40) (desenhaTerreno terreno)
 
 -- | Representação gráfica de cada tipo de terreno
 desenhaTerreno :: Terreno -> Picture
@@ -31,7 +31,7 @@ desenhaTerreno Terra = color orange (rectangleSolid 40 40)
 
 -- | Desenhar a base
 desenhaBase :: Base -> Picture
-desenhaBase base = translate x (-y) $ color red (circleSolid 20)
+desenhaBase base = translate x y $ color red (circleSolid 20)
   where
     (x, y) = posicaoParaCoords (posicaoBase base)
 
@@ -61,7 +61,7 @@ desenhaInimigos inimigos = pictures $ map desenhaInimigo inimigos
 
 -- | Representação gráfica de um inimigo
 desenhaInimigo :: Inimigo -> Picture
-desenhaInimigo inimigo = translate x (-y) $ color black (circleSolid 10)
+desenhaInimigo inimigo = translate x y $ color black (circleSolid 10)
   where
     (x, y) = posicaoParaCoords (posicaoInimigo inimigo)
 

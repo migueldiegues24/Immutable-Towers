@@ -5,4 +5,4 @@ import Tarefa3 (atualizaJogo)
 
 -- | Reage à passagem do tempo, atualizando o estado do jogo
 reageTempo :: Float -> Jogo -> Jogo
-reageTempo delta jogo = atualizaJogo delta jogo
+reageTempo tempo jogo = atualizaJogo tempo jogo

@@ -1,5 +1,5 @@
 module Main where
-
+  
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game()
 
@@ -19,7 +19,17 @@ tituloJanela = "Immutable Towers"
 estadoInicial :: Jogo
 estadoInicial = Jogo {
     baseJogo = Base { posicaoBase = (5, 2), vidaBase = 100, creditosBase = 50 },
-    portaisJogo = [Portal { posicaoPortal = (0, 0), ondasPortal = [] }],
+    portaisJogo = [Portal {
+        posicaoPortal = (0, 0),
+        ondasPortal = [
+            Onda {
+                inimigosOnda = [Inimigo { posicaoInimigo = (0, 0), vidaInimigo = 100, velocidadeInimigo = 1, direcaoInimigo = Este, projeteisInimigo = [] }],
+                entradaOnda = 1,
+                tempoOnda = 1,
+                cicloOnda = 5
+            }
+        ]
+    }],
     torresJogo = [],
     mapaJogo = [[Terra, Terra, Relva, Agua, Agua, Agua],
                 [Relva, Terra, Relva, Agua, Relva, Relva],
@@ -29,7 +39,8 @@ estadoInicial = Jogo {
                 [Agua, Agua, Agua, Agua, Relva, Relva]],
     inimigosJogo = [],
     lojaJogo = []
-  }  
+  }
+
 
 -- | Main: configuração inicial e loop do jogo
 main :: IO ()
