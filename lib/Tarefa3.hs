@@ -94,32 +94,54 @@ atualizaInimigos tempo jogo =
 moveInimigos :: Tempo -> [Inimigo] -> Mapa -> [Inimigo]
 moveInimigos tempo inimigos mapa = map (\inimigo -> moveInimigo tempo inimigo mapa) inimigos
 
--- Movimenta apenas um inimigo
 moveInimigo :: Tempo -> Inimigo -> Mapa -> Inimigo
-moveInimigo tempo inimigo mapa | efeitoGelo inimigo = inimigo -- Não se move se estiver congelado
-                               | otherwise =
-      let velocidade = velocidadeResina inimigo
-          distancia2 = velocidade * tempo
-          novaPosicao = posicaoNova (posicaoInimigo inimigo) distancia2 (direcaoInimigo inimigo)
-      in if posicaoValida mapa novaPosicao
-         then inimigo { posicaoInimigo = novaPosicao }
-         else inimigo -- Não move se a nova posição for inválida
+moveInimigo tempo inimigo mapa
+    | efeitoGelo inimigo = inimigo -- Não se move se estiver congelado
+    | otherwise =
+        let velocidade = velocidadeResina inimigo
+            distancia2 = velocidade * tempo
+            posAtual = posicaoInimigo inimigo
+            direcaoAtual = direcaoInimigo inimigo
+            novaDirecao = calculaNovaDirecao posAtual direcaoAtual mapa
+            novaPosicao = posicaoNova posAtual distancia2 novaDirecao
+        in if posicaoValida mapa novaPosicao
+           then inimigo { posicaoInimigo = novaPosicao, direcaoInimigo = novaDirecao }
+           else inimigo -- Não altera nada se não puder se mover
 
--- 
+
+calculaNovaDirecao :: Posicao -> Direcao -> Mapa -> Direcao
+calculaNovaDirecao (x, y) direcaoAtual mapa =
+    let 
+        adjacentes = [(Norte, (x, y + 1)), (Sul, (x, y - 1)), (Este, (x + 1, y)), (Oeste, (x - 1, y))]
+        validos = filter (\(_, (nx, ny)) -> posicaoValida mapa (nx, ny)) adjacentes
+        progressivos = filter (\(dir, _) -> dir /= direcaoOposta direcaoAtual) validos
+    in 
+        case progressivos of
+         ((novaDirecao, _):_) -> novaDirecao -- Prioriza a primeira direção válida e progressiva
+         [] -> direcaoAtual -- Caso não haja direções progressivas, mantém a direção atual
+  where
+    direcaoOposta Norte = Sul
+    direcaoOposta Sul   = Norte
+    direcaoOposta Este  = Oeste
+    direcaoOposta Oeste = Este
+
+
 posicaoNova :: Posicao -> Float -> Direcao -> Posicao
-posicaoNova (x, y) d Norte = (x, y - d)
-posicaoNova (x, y) d Sul   = (x, y + d)
+posicaoNova (x, y) d Norte = (x, y + d)
+posicaoNova (x, y) d Sul   = (x, y - d)
 posicaoNova (x, y) d Este  = (x + d, y)
 posicaoNova (x, y) d Oeste = (x - d, y)
 
--- Verifica se a posição é válida no mapa considreando apenas o terreno "Terra"
+-- Verifica se a posição é válida no mapa considerando apenas o terreno Terra
 posicaoValida :: Mapa -> Posicao -> Bool
-posicaoValida mapa (x, y) | posy < 0 || posy < 0 = False 
-                          | posx >= length mapa || posy >= length (head mapa) = False 
-                          | otherwise = mapa !! posy !! posx == Terra 
-                            where
-                              posx = floor x
-                              posy = floor y
+posicaoValida mapa (x, y)
+    | posx < 0 || posy < 0 = False 
+    | posx >= length (head mapa) || posy >= length mapa = False 
+    | otherwise = mapa !! posy !! posx == Terra
+  where
+    posx = floor x
+    posy = floor y
+
 
 -- Verifica se o inimigo está sobre o efeito de gelo 
 efeitoGelo :: Inimigo -> Bool
