@@ -23,7 +23,15 @@ estadoInicial = Jogo {
         posicaoPortal = (0, 0),
         ondasPortal = [
             Onda {
-                inimigosOnda = [Inimigo { posicaoInimigo = (0, 0), vidaInimigo = 100, velocidadeInimigo = 1, direcaoInimigo = Este, projeteisInimigo = [] }],
+                inimigosOnda = [
+                    Inimigo 
+                    {posicaoInimigo = (0, 0), 
+                    vidaInimigo = 100, 
+                    velocidadeInimigo = 1, 
+                    direcaoInimigo = Este, 
+                    projeteisInimigo = [], 
+                    ataqueInimigo = 20, 
+                    butimInimigo = 20}],
                 entradaOnda = 1,
                 tempoOnda = 1,
                 cicloOnda = 5

@@ -23,17 +23,17 @@ desenhaLinha :: Integral a => a -> [Terreno] -> [Picture]
 desenhaLinha y linha = zipWith (desenhaCelula y) [0..] linha
 
 desenhaCelula :: (Integral a1, Integral a2) => a2 -> a1 -> Terreno -> Picture
-desenhaCelula y x terreno = translate (fromIntegral x * 40) (fromIntegral y * 40) (desenhaTerreno terreno)
+desenhaCelula y x terreno = translate (fromIntegral x * 50) (fromIntegral y * 50) (desenhaTerreno terreno)
 
 -- | Representação gráfica de cada tipo de terreno
 desenhaTerreno :: Terreno -> Picture
-desenhaTerreno Relva = color green (rectangleSolid 40 40)
-desenhaTerreno Agua = color blue (rectangleSolid 40 40)
-desenhaTerreno Terra = color orange (rectangleSolid 40 40)
+desenhaTerreno Relva = color green (rectangleSolid 50 50)
+desenhaTerreno Agua = color blue (rectangleSolid 50 50)
+desenhaTerreno Terra = color orange (rectangleSolid 50 50)
 
 -- | Desenhar a base
 desenhaBase :: Base -> Picture
-desenhaBase base = translate x y $ color red (circleSolid 20)
+desenhaBase base = translate x y $ color red (circleSolid 25)
   where
     (x, y) = posicaoParaCoords (posicaoBase base)
 
@@ -82,5 +82,5 @@ desenhaLoja loja = translate (-300) 200 $ pictures $ zipWith desenhaItem [0..] l
 
 -- | Converter posição lógica para coordenadas na tela
 posicaoParaCoords :: Posicao -> (Float, Float)
-posicaoParaCoords (cx, cy) = (cx * 40, cy * 40)
+posicaoParaCoords (cx, cy) = (cx * 50, cy * 50)
 

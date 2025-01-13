@@ -98,13 +98,15 @@ moveInimigo :: Tempo -> Inimigo -> Mapa -> Inimigo
 moveInimigo tempo inimigo mapa
     | efeitoGelo inimigo = inimigo -- Não se move se estiver congelado
     | otherwise =
-        let velocidade = velocidadeResina inimigo
+        let 
+            velocidade = velocidadeResina inimigo
             distancia2 = velocidade * tempo
             posAtual = posicaoInimigo inimigo
             direcaoAtual = direcaoInimigo inimigo
             novaDirecao = calculaNovaDirecao posAtual direcaoAtual mapa
             novaPosicao = posicaoNova posAtual distancia2 novaDirecao
-        in if posicaoValida mapa novaPosicao
+        in 
+            if posicaoValida mapa novaPosicao
            then inimigo { posicaoInimigo = novaPosicao, direcaoInimigo = novaDirecao }
            else inimigo -- Não altera nada se não puder se mover
 

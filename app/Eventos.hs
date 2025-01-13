@@ -63,4 +63,4 @@ pausaJogo jogo = jogo
 
 -- | Conversão de coordenadas da tela para posições lógicas
 coordsParaPosicao :: (Float, Float) -> Posicao
-coordsParaPosicao (x, y) = ( x / 40, y / 40)
+coordsParaPosicao (x, y) = ( x / 50, y / 50)
