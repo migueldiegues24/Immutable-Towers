@@ -15,7 +15,7 @@ tamanhoJanela = (800, 600)
 tituloJanela :: String
 tituloJanela = "Immutable Towers"
 
--- | Estado inicial do jogo (placeholder: criar um exemplo para testar)
+-- | Estado inicial do jogo 
 estadoInicial :: Jogo
 estadoInicial = Jogo {
     baseJogo = Base { posicaoBase = (5, 2), vidaBase = 100, creditosBase = 50 },
@@ -38,7 +38,11 @@ estadoInicial = Jogo {
                 [Relva, Terra, Terra, Terra, Terra, Terra],
                 [Agua, Agua, Agua, Agua, Relva, Relva]],
     inimigosJogo = [],
-    lojaJogo = []
+    lojaJogo = [
+        (10, Torre (0, 0) 10 60 1 2 0 (Projetil Fogo Infinita)),
+        (15, Torre (0, 0) 15 80 2 3 0 (Projetil Gelo (Finita 5))),
+        (20, Torre (0, 0) 20 100 3 4 0 (Projetil Resina (Finita 10)))
+        ]
   }
 
 

@@ -10,7 +10,9 @@ desenhaJogo jogo =
             desenhaBase (baseJogo jogo), 
             desenhaTorres (torresJogo jogo), 
             desenhaInimigos (inimigosJogo jogo),
-            desenhaPortais (portaisJogo jogo)]
+            desenhaPortais (portaisJogo jogo),
+            desenhaLoja (lojaJogo jogo)]
+
 
 -- | Desenhar o mapa
 desenhaMapa :: Mapa -> Picture
@@ -39,11 +41,13 @@ desenhaBase base = translate x y $ color red (circleSolid 20)
 desenhaTorres :: [Torre] -> Picture
 desenhaTorres torres = pictures $ map desenhaTorre torres
 
--- | Representação gráfica de uma torre
 desenhaTorre :: Torre -> Picture
-desenhaTorre torre = translate x y $ color yellow (rectangleSolid 30 30)
+desenhaTorre torre
+  | posicaoTorre torre == (-1, -1) = translate x y $ color red (rectangleSolid 30 30) -- Torre a ser posicionada
+  | otherwise = translate x y $ color yellow (rectangleSolid 30 30)
   where
     (x, y) = posicaoParaCoords (posicaoTorre torre)
+
 
 -- | Desenhar os portais
 
@@ -65,6 +69,18 @@ desenhaInimigo inimigo = translate x y $ color black (circleSolid 10)
   where
     (x, y) = posicaoParaCoords (posicaoInimigo inimigo)
 
+-- | Desenhar a loja na interface
+desenhaLoja :: Loja -> Picture
+desenhaLoja loja = translate (-300) 200 $ pictures $ zipWith desenhaItem [0..] loja
+  where
+    desenhaItem idx (preco, torre) = translate 0 (-50 * idx) $
+        pictures [ color white $ rectangleSolid 200 40, -- Caixa do item
+                   translate (-90) 0 $ scale 0.1 0.1 $ text ("Torre: " ++ show preco ++ " créditos"),
+                   translate 50 0 $ desenhaTorre torre -- Mostra a torre como exemplo
+                 ]
+
+
 -- | Converter posição lógica para coordenadas na tela
 posicaoParaCoords :: Posicao -> (Float, Float)
 posicaoParaCoords (cx, cy) = (cx * 40, cy * 40)
+
