@@ -7,6 +7,7 @@ import LI12425
 
 torre1 = Torre {posicaoTorre = (0,0), danoTorre = 10, alcanceTorre = 5, rajadaTorre = 10, cicloTorre = 5, tempoTorre = 10, projetilTorre = Projetil { tipoProjetil = Fogo , duracaoProjetil = Infinita}}
 torre2 = Torre {posicaoTorre = (1,1), danoTorre = 10, alcanceTorre = 5, rajadaTorre = 10, cicloTorre = 5, tempoTorre = 10, projetilTorre = Projetil { tipoProjetil = Fogo , duracaoProjetil = Infinita}}
+torre3 = Torre {posicaoTorre = (1,1), danoTorre = 10, alcanceTorre = 0, rajadaTorre = 10, cicloTorre = 5, tempoTorre = 10, projetilTorre = Projetil { tipoProjetil = Fogo , duracaoProjetil = Infinita}}
 inimigo1 = Inimigo {posicaoInimigo = (0,0), direcaoInimigo = Norte, vidaInimigo = 100, velocidadeInimigo = 10, ataqueInimigo = 10, butimInimigo = 20, projeteisInimigo = []}
 inimigo2 = Inimigo {posicaoInimigo = (1,1), direcaoInimigo = Norte, vidaInimigo = 100, velocidadeInimigo = 10, ataqueInimigo = 10, butimInimigo = 20, projeteisInimigo = []}
 
@@ -107,14 +108,14 @@ testesVerificaAlcanceTorres :: Test
 testesVerificaAlcanceTorres =
     test
       [ "Todos os alcances positivos" ~: True ~=? verificaAlcanceTorres [torre1,torre2],
-        "Algum alcance zero" ~: False ~=? verificaAlcanceTorres [torre1,torre2] -- failure
+        "Algum alcance zero" ~: False ~=? verificaAlcanceTorres [torre3] 
       ]
 
 testesVerificaRajadaTorres :: Test
 testesVerificaRajadaTorres =
     test
       [ "Todas as rajadas positivas" ~: True ~=? verificaRajadaTorres [torre1, torre2],
-        "Alguma rajada negativa" ~: False ~=? verificaRajadaTorres [torre1] -- failure
+        "Alguma rajada negativa" ~: False ~=? verificaRajadaTorres [torre2,torre1] -- failure
       ]
 
 testesVerificaCicloPositivo :: Test
@@ -128,7 +129,7 @@ testesVerificaTorresSobrepostas :: Test
 testesVerificaTorresSobrepostas =
     test
       [ "Nenhuma torre sobreposta" ~: True ~=? verificaTorresSobrepostas [torre1,torre2],
-        "Torres sobrepostas" ~: False ~=? verificaTorresSobrepostas [torre1,torre2] -- failure
+        "Torres sobrepostas" ~: False ~=? verificaTorresSobrepostas [torre1,torre1] 
       ]
 
 testesVerificaBase :: Test
@@ -157,7 +158,7 @@ testesBaseNaoSobreposta =
     test
       [ "Base não sobreposta a torres nem portais" ~: True ~=? baseNaoSobreposta exemploBase [] [],
         "Base sobreposta a uma torre" ~: False ~=? baseNaoSobreposta exemploBase [torre2] [],
-        "Base sobreposta a um portal" ~: False ~=? baseNaoSobreposta exemploBase [] [Portal (0, 0) []] -- erro
+        "Base sobreposta a um portal" ~: False ~=? baseNaoSobreposta exemploBase [] [Portal (1, 1) []] 
       ]
   where
     exemploBase = Base 100 (1, 1) 10
