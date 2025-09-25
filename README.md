@@ -1,42 +1,47 @@
-# Laboratórios de Informática I
+# Immutable Towers 🏰
 
-## Executável
+## ⚙️ Executable
 
-Pode compilar e executar o programa através dos comandos `build` e `run` do Cabal.
+You can compile and run the program using Cabal’s `build` and `run` commands:
 
 ```bash
 cabal run --verbose=0
 ```
 
-## Interpretador
+## 💻 Interpreter
 
-Para abrir o interpretador do Haskell (GHCi) com o projeto carregado, utilize o comando `repl` do Cabal
+To open the Haskell interpreter (GHCi) with the project loaded, use Cabal’s `repl` command:
 
 ```bash
 cabal repl
 ```
 
-## Testes
+## 🧪 Tests
 
-O projecto utiliza a biblioteca [HUnit](https://hackage.haskell.org/package/HUnit) para fazer testes unitários.
+The project uses the [HUnit](https://hackage.haskell.org/package/HUnit) library for unit testing.  
 
-Execute os testes com o comando `test` do Cabal e utilize a flag `--enable-coverage` para gerar um relatório de cobertura de testes.
+Run the tests with Cabal’s `test` command, and use the `--enable-coverage` flag to generate a coverage report:
 
 ```bash
 cabal test --enable-coverage
 ```
 
-Execute os exemplos da documentação como testes com a biblioteca
-[`doctest`](https://hackage.haskell.org/package/doctest). Para instalar o
-executavel utilize o comando `cabal install doctest`.
+You can also run the documentation examples as tests using the [doctest](https://hackage.haskell.org/package/doctest) library.  
+To install the executable, use the following command:
+
+```bash
+cabal install doctest
+```
+
+Then run doctest with:
 
 ```bash
 cabal repl --build-depends=QuickCheck,doctest --with-ghc=doctest --verbose=0
 ```
 
-## Documentação
+## 📖 Documentation
 
-A documentação do projeto pode ser gerada recorrendo ao [Haddock](https://haskell-haddock.readthedocs.io/).
+The project documentation can be generated using [Haddock](https://haskell-haddock.readthedocs.io/):
 
 ```bash
 cabal haddock
